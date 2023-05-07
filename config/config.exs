@@ -6,3 +6,5 @@ config :test_ecto, TestEcto.Repo,
   adapter: Sqlite.Ecto3,
   database: "test_ecto_#{Mix.env()}.sqlite3",
   pool_size: 10
+
+import_config "#{Mix.env()}.exs"
