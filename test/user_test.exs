@@ -105,6 +105,30 @@ defmodule UserTest do
       first_post = Enum.at(inserted_posts, 0)
       assert Enum.count(inserted_posts) == 1
     end
+
+    test "multiple insertion with single transaction" do
+      {:ok, user} = %User{} |> User.changeset(%{name: "foo"}) |> Repo.insert()
+
+      post_attrs = [
+        %{user_id: user.id, title: "t-1", body: "b-1"},
+        %{user_id: user.id, title: "t-2", body: "b-2"},
+        %{user_id: user.id, title: "t-3", body: "b-3"},
+        %{user_id: user.id, title: "t-4", body: "b-4"}
+      ]
+
+      Repo.transaction(fn ->
+        post_attrs
+        |> Enum.each(fn attrs ->
+          case Post.create_or_update_with_user(attrs) do
+            {:ok, _} -> :ok
+            {:error, _} -> raise("something wrong at: #{attrs}")
+          end
+        end)
+      end)
+
+      count = Repo.one(from(p in Post, select: count(p.id)))
+      assert count == 4
+    end
   end
 
   test "greets the world" do
