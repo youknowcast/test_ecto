@@ -12,7 +12,7 @@ defmodule TestEcto.Post do
 
   def changeset(post, attrs) do
     post
-    |> cast(attrs, [:title, :body])
+    |> cast(attrs, [:title, :body, :id])
     |> validate_required([:title, :body])
     |> assoc_constraint(:user)
   end
