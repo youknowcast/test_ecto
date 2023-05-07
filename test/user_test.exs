@@ -79,6 +79,31 @@ defmodule UserTest do
       assert first_post.id == existing_post.id
       assert first_post.body == "changed"
       assert second_post.body == "new b"
+
+      # Note: しかし，User.update_with_posts/2 は :posts に関連する post すべてを指定する必要がある
+      # (さもなくば，has_many() に指定した on_replace: :delete に従って削除されてしまう)．
+      # on_replace: :update が使えればよいが，has_many では使えないと doc にあるので，ある程度の規模の has_many に対しては
+      # User.update_with_posts/2 は使用できない．
+      #
+      # 代わりに，Post.create_or_update_with_user/1 を使うのが今のところの代替案である(し，たぶんそんなに筋が悪くはない)．
+    end
+
+    test "updates existing post" do
+      User.create_with_posts(%{name: "foo", posts: [%{title: "t", body: "b"}]})
+
+      user = Repo.one(User)
+      existing_post = Repo.one(Post)
+
+      Post.create_or_update_with_user(%{
+        existing_post
+        | user_id: user.id,
+          title: "new t",
+          body: "new b"
+      })
+
+      inserted_posts = Repo.all(Post)
+      first_post = Enum.at(inserted_posts, 0)
+      assert Enum.count(inserted_posts) == 1
     end
   end
 

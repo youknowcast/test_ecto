@@ -7,7 +7,7 @@ defmodule TestEcto.User do
 
   schema "users" do
     field(:name, :string)
-    has_many(:posts, TestEcto.Post)
+    has_many(:posts, TestEcto.Post, on_delete: :delete_all)
 
     timestamps()
   end
@@ -25,10 +25,11 @@ defmodule TestEcto.User do
     user
     |> Repo.preload(:posts)
     |> changeset(updated_attrs)
-    |> cast_assoc(:posts, with: &Post.changeset/2, on_replace: :update)
+    |> cast_assoc(:posts, with: &Post.changeset/2)
     |> Repo.update()
   end
 
+  # Changeset, Struct, Map をなんでも受け付けるようにする
   defp to_map(%{posts: posts} = attrs) do
     %{attrs | posts: Enum.map(posts, &to_map_or_struct/1)}
   end
