@@ -13,6 +13,27 @@ defmodule TestEcto.Post do
     timestamps()
   end
 
+  @spec create_or_update_with_user(%{:user_id => integer, optional(:id) => integer()}) ::
+          {:ok, %TestEcto.Post{}} | {:error, %Ecto.Changeset{}}
+  @doc """
+  Creates or updates a `Post` associated with a `User`.
+
+  This function first tries to fetch a user with the given `:user_id` from the `attrs` map.
+  If the user is found, it checks if an `:id` is present in the `attrs` map.
+
+  If an `:id` is present, it fetches the corresponding post with the given `:user_id` and `:id`
+  and updates it with the provided attributes. Otherwise, it creates a new post associated with
+  the user using the provided attributes.
+
+  ## Examples
+
+      iex> create_or_update_with_user(%{user_id: 1, title: "New Post", body: "Post content"})
+      {:ok, %Post{}}
+
+      iex> create_or_update_with_user(%{user_id: 1, id: 1, title: "Updated Post", body: "Updated content"})
+      {:ok, %Post{}}
+
+  """
   def create_or_update_with_user(attrs) do
     user = Repo.get(User, Map.fetch!(attrs, :user_id))
 

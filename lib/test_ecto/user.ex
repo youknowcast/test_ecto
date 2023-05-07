@@ -19,6 +19,7 @@ defmodule TestEcto.User do
     |> Repo.insert()
   end
 
+  @deprecated "Use Post.create_or_update_with_user/1 instead"
   def update_with_posts(user, attrs) do
     updated_attrs = to_map(attrs)
 
